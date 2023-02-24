@@ -1,4 +1,2 @@
 cardNumber|monthEx|yearEx|ccv
-4848041079775062|09|27|463
-4848041035008160|09|27|856
-
+xxxxxxxxxx|xx|xx|xxx
