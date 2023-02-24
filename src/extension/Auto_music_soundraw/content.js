@@ -863,6 +863,12 @@ let clickButtonRegister = (dataRegister, url) => {
             let element = getElementBySelector(selector);
             console.log("clickRegister");
             element.click();
+            let event = new MouseEvent('click', {
+                'view': window,
+                'bubbles': true,
+                'cancelable': true
+            });
+            element.dispatchEvent(event);
         }
         resolve();
     })
@@ -1068,6 +1074,18 @@ let checkAndClickButtonRegister = () => {
     })
 }
 
+let checkValidCard = () => {
+    return new Promise(async (resolve, reject) => {
+        await delayTime(1000);
+        let elementUpgrade = await getElementBySelector("a[id='btn-subscription-modal']");
+        if (elementUpgrade) {
+            resolve(false);
+        } else {
+            resolve(true);
+        }
+    })
+}
+
 // Lắng nghe message từ background js
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.source === "background") {
@@ -1110,12 +1128,18 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             }
             if (request.currentURL.includes('https://soundraw.io/users/confirm_sign_up?origin=acc_and_sub')) {
                 getDataRegister().then(() => {
-                    return clickQuestion1(dataRegister, request.currentURL);
-                }).then(() => {
-                    return clickQuestion2(dataRegister, request.currentURL);
-                }).then(() => {
-                    return clickSubmitSurvey(dataRegister, request.currentURL);
-                }).then(() => { })
+                    return checkValidCard();
+                }).then((isValid) => {
+                    if (isValid) {
+                        clickQuestion1(dataRegister, request.currentURL).then(() => {
+                            return clickQuestion2(dataRegister, request.currentURL);
+                        }).then(() => {
+                            return clickSubmitSurvey(dataRegister, request.currentURL);
+                        }).then(() => { })
+                    } else {
+                        socket.emit("cardError", { usernameGmail: dataRegister.usernameGmail, log: `Thẻ lỗi rồi bắt chạy hoài cha`, url: request.currentURL });
+                    }
+                })
             }
 
             if (request.currentURL === 'https://soundraw.io/edit_music') {

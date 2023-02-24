@@ -76,6 +76,7 @@ let openProfileRunning = 0;
 
 // Tổng số client connect đến app
 let totalClientConnection = 0;
+let cardInvalid = false;
 
 function randomValueHex(len) {
     return crypto.randomBytes(Math.ceil(len / 2))
@@ -115,6 +116,20 @@ io.on("connection", (socket) => {
         delete processRunnings[account];
         // giảm biến số lượng account đang chạy
         openProfileRunning--;
+    });
+
+    socket.on("cardError", async (msg) => {
+        console.log("===============================!!!!!!!!!!", msg.log);
+        let account = msg.usernameGmail;
+
+        // giảm biến số lượng account đang chạy
+        cardInvalid = true;
+        // Get object Running
+        let objectRunning = processRunnings[account];
+
+        // kill process chrome by process id
+        killProcess(objectRunning.pid);
+        delete processRunnings[account];
     });
 
     socket.on("disconnect", () => {
@@ -232,27 +247,25 @@ let mainFunction = () => {
 }
 const delayTime = ms => new Promise(res => setTimeout(res, ms));
 let checkBrowserActive = async () => {
-    // Lấy ra thư mục chứa profile
-    let pathProfilesList = path.join(userHomeDir, 'profileChrome');
-    // Lấy ra mảng tất cả profile
-    let allProfiles = await getAllFolderInDirectory(pathProfilesList);
+    if (!cardInvalid) {
+        // Lấy ra thư mục chứa profile
+        let pathProfilesList = path.join(userHomeDir, 'profileChrome');
+        // Lấy ra mảng tất cả profile
+        let allProfiles = await getAllFolderInDirectory(pathProfilesList);
 
-    // Nếu mảng này lớn hơn số profile đang chạy thì:
-    if (allProfiles.length > openProfileRunning) {
-        // Lấy tất cả profile chưa chạy
-        let listProfileNotRun = await getListProfileNotRun(allProfiles, processRunnings);
+        // Nếu mảng này lớn hơn số profile đang chạy thì:
+        if (allProfiles.length > openProfileRunning) {
+            // Lấy tất cả profile chưa chạy
+            let listProfileNotRun = await getListProfileNotRun(allProfiles, processRunnings);
 
-        // Lặp qua và chạy
-        for (const profilePath of listProfileNotRun) {
-            await openProfile(profilePath, profilePath.split('\\').pop());
+            // Lặp qua và chạy
+            for (const profilePath of listProfileNotRun) {
+                await openProfile(profilePath, profilePath.split('\\').pop());
+            }
         }
+    } else {
+        console.log("===============================!!!!!!!!!! Thẻ lỗi rồi bắt chạy hoài cha");
     }
-
-    // let totalProfileMax = 1;
-    // console.log(`>>>> Profile Running/Max: ", ${openProfileRunning}/${totalProfileMax}`);
-    // if (openProfileRunning < totalProfileMax) {
-    //     await openProfile();
-    // }
 }
 
 let openProfile = async (newProfileDir, profileName) => {
