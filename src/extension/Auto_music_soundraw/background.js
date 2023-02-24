@@ -83,6 +83,30 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
             closeBrowse();
         }
     }
+
+    if (message.isFrame) {
+        if (message.request === "completeTypeCardNumber") {
+            chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, { source: "background", method: "completeTypeCardNumber" }, function (response) { });
+            });
+        }
+
+        if (message.request === "completeTypeMonthYearEx") {
+            chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, { source: "background", method: "completeTypeMonthYearEx" }, function (response) { });
+            });
+        }
+
+        if (message.request === "completeTypeCcv") {
+            chrome.tabs.query({ active: true, currentWindow: true }, function (tabs) {
+                chrome.tabs.sendMessage(tabs[0].id, { source: "background", method: "completeTypeCcv" }, function (response) { });
+            });
+        }
+
+
+    }
+
+
 });
 
 let getPathJsonFile = async (jsonFileName) => {

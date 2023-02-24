@@ -48,8 +48,7 @@ let typeCardNumber = (cardNumber) => {
         console.log("cardnumber: ", element);
         if (element[0]) {
             await typeOneByOneSimulatorContent2(element[0], cardNumber);
-            localStorage.setItem('typeCardNumber', "true");
-            chrome.runtime.sendMessage({ isFrame: true, request: 'clickButtonRegister' }, async function (response) { })
+            chrome.runtime.sendMessage({ isFrame: true, request: 'completeTypeCardNumber' }, async function (response) { })
         }
         resolve();
     })
@@ -62,8 +61,7 @@ let typeMonthYearEx = (monthYearEx) => {
         console.log("exp-date: ", element);
         if (element[0]) {
             await typeOneByOneSimulatorContent2(element[0], monthYearEx);
-            localStorage.setItem('typeMonthYearEx', "true");
-            chrome.runtime.sendMessage({ isFrame: true, request: 'clickButtonRegister' }, async function (response) { })
+            chrome.runtime.sendMessage({ isFrame: true, request: 'completeTypeMonthYearEx' }, async function (response) { })
         }
         resolve();
     })
@@ -76,8 +74,7 @@ let typeCcv = (ccv) => {
         console.log("cvc: ", element);
         if (element[0]) {
             await typeOneByOneSimulatorContent2(element[0], ccv);
-            localStorage.setItem('typeCcv', "true");
-            chrome.runtime.sendMessage({ isFrame: true, request: 'clickButtonRegister' }, async function (response) { })
+            chrome.runtime.sendMessage({ isFrame: true, request: 'completeTypeCcv' }, async function (response) { })
         }
         resolve();
     })

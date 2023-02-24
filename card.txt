@@ -1,2 +1,2 @@
 cardNumber|monthEx|yearEx|ccv
-xxxxxxxxxx|xx|xx|xxx
+4848041079775062|09|27|463

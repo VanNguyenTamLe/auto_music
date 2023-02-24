@@ -849,6 +849,7 @@ let clickAgree = (dataRegister, url) => {
         if (await waitElementBySelector(selector, "agreeRadio")) {
             let element = getElementBySelector(selector);
             element.click();
+            localStorage.setItem('clickAgree', "true");
         }
         resolve();
     })
@@ -1047,6 +1048,26 @@ let checkDownloadComplete = (dataRegister, url) => {
     })
 }
 
+let checkAndClickButtonRegister = () => {
+    return new Promise(async (resolve, reject) => {
+        await delayTime(1500);
+        let isTypeCardNumber = localStorage.getItem("typeCardNumber");
+        let isTypeMonthYearEx = localStorage.getItem("typeMonthYearEx");
+        let isTypeCcv = localStorage.getItem("typeCcv");
+        let isClickAgree = localStorage.getItem("clickAgree");
+        console.log("isTypeCardNumber", isTypeCardNumber);
+        console.log("isTypeMonthYearEx", isTypeMonthYearEx);
+        console.log("isTypeCcv", isTypeCcv);
+        console.log("clickAgree", isClickAgree);
+
+        if (isTypeCardNumber && isTypeMonthYearEx && isTypeCcv && isClickAgree) {
+            getDataRegister().then(() => {
+                return clickButtonRegister(dataRegister);
+            }).then(() => { resolve(); })
+        }
+    })
+}
+
 // Lắng nghe message từ background js
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     if (request.source === "background") {
@@ -1140,24 +1161,11 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 })
                 chrome.runtime.sendMessage({ isContent: true, request: 'closeBrowser' }, function (response) { });
             }
-
             return true;
         }
 
         if (request.method === "clickButtonRegister") {
-            let isTypeCardNumber = localStorage.getItem("typeCardNumber");
-            let isTypeMonthYearEx = localStorage.getItem("typeMonthYearEx");
-            let isTypeCcv = localStorage.getItem("typeCcv");
-            console.log("isTypeCardNumber", isTypeCardNumber);
-            console.log("isTypeMonthYearEx", isTypeMonthYearEx);
-            console.log("isTypeCcv", isTypeCcv);
-
-            if (!isTypeCardNumber && !isTypeMonthYearEx && !isTypeCcv) {
-                getDataRegister().then(() => {
-                    return clickButtonRegister(dataRegister, request.currentURL);
-                }).then(() => { })
-            }
-
+            checkAndClickButtonRegister().then(() => { })
             return true;
         }
 
@@ -1173,8 +1181,24 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             } else {
                 localStorage.setItem("downloaded", numberDownloaded);
             }
+            return true;
+        }
 
+        if (request.method === "completeTypeCardNumber") {
+            localStorage.setItem('typeCardNumber', "true");
+            checkAndClickButtonRegister().then(() => { })
+            return true;
+        }
 
+        if (request.method === "completeTypeMonthYearEx") {
+            localStorage.setItem('typeMonthYearEx', "true");
+            checkAndClickButtonRegister().then(() => { })
+            return true;
+        }
+
+        if (request.method === "completeTypeCcv") {
+            localStorage.setItem('typeCcv', "true");
+            checkAndClickButtonRegister().then(() => { })
             return true;
         }
     }
