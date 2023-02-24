@@ -1,0 +1,2 @@
+cardNumber|monthEx|yearEx|ccv
+4848041056780986|09|27|796
