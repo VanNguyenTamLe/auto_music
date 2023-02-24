@@ -1055,8 +1055,15 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             if (request.currentURL === 'https://soundraw.io/users/sign_up') {
                 //
                 // random email
-                let randomString = randomStringFunction(20, '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ');
-                let emailRandom = `${randomString}@gmail.com`;
+                const vietnameseNames = ["An", "Anh", "Binh", "Chi", "Cong", "Danh", "Duy", "Dat", "Duc", "Giang", "Hieu", "Hoang", "Huy", "Khanh", "Khoa", "Khoi", "Kien", "Lam", "Linh", "Long", "Minh", "Nam", "Nga", "Nghi", "Ngoc", "Nguyen", "Nhat", "Phi", "Phong", "Phuong", "Quan", "Quang", "Son", "Tam", "Thanh", "Thi", "Thien", "Tho", "Thu", "Thuy", "Tien"];
+                let vietnameName = vietnameseNames[Math.floor(Math.random() * vietnameseNames.length)];
+                const vietnameseLastNames = ["Bui", "Cao", "Chau", "Chu", "Dang", "Do", "Dong", "Ho", "Huynh", "La", "Le", "Luu", "Ma", "Nguyen", "Ngo", "Pham", "Phan", "Quach", "Thai", "Tran", "Trinh", "Truong", "Vo", "Vuong"];
+                let vietnameLastName = vietnameseLastNames[Math.floor(Math.random() * vietnameseLastNames.length)];
+                const specials = [".", ""];
+                let spe = specials[Math.floor(Math.random() * specials.length)];
+                let randNum = Math.floor(Math.random() * (8 - 5 + 1)) + 5;
+                let randomString = randomStringFunction(randNum, '0123456789');
+                let emailRandom = `${vietnameName}${spe}${vietnameLastName}${randomString}@gmail.com`;
                 getDataRegister().then(() => {
                     //type email
                     return typeEmailRandom(emailRandom, dataRegister, request.currentURL);
@@ -1077,6 +1084,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
                 }).then(() => {
                     return clickAgree(dataRegister, request.currentURL);
                 }).then(() => {
+                    chrome.runtime.sendMessage({ isContent: true, request: 'clickButtonRegister' }, function (response) { });
                 })
             }
             if (request.currentURL.includes('https://soundraw.io/users/confirm_sign_up?origin=acc_and_sub')) {
